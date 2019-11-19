@@ -1,68 +1,71 @@
 import {
   IonCard,
   IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
   IonCardTitle,
   IonContent,
-  IonHeader,
-  IonIcon,
   IonItem,
   IonLabel,
-  IonList,
-  IonListHeader,
   IonPage,
-  IonTitle,
-  IonToolbar
+  IonInput,
+  IonButton,
+  IonToast
 } from '@ionic/react';
-import { book, build, colorFill, grid } from 'ionicons/icons';
-import React from 'react';
-import './Tab1.css';
+import React, { useState } from 'react';
+import { useHistory } from "react-router-dom";
+import { fetchUserByEmail } from '../services/user'
 
 const Tab1: React.FC = () => {
+  let history = useHistory()
+  const [showToast, setShowToast] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  })
+
+  const updateFormData = (event: any) =>
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value
+    })
+  const { email, password } = formData
+
+  const handleLogin = () => {
+    fetchUserByEmail(email)
+      .then(res => {
+        if (!['No user found', 'Internal sever error'].includes(res.message) && password === '123') {
+          history.push("/tab2/" + res.message.id)
+        } else {
+          setShowToast(true)
+        }
+      })
+  }
+
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Tab One</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent>
-        <IonCard className="welcome-card">
-          <img src="/assets/shapes.svg" alt="" />
-          <IonCardHeader>
-            <IonCardSubtitle>Get Started</IonCardSubtitle>
-            <IonCardTitle>Welcome to Ionic</IonCardTitle>
-          </IonCardHeader>
+        <IonCard>
           <IonCardContent>
-            <p>
-              Now that your app has been created, you'll want to start building out features and
-              components. Check out some of the resources below for next steps.
-            </p>
+            <IonCardTitle>Login</IonCardTitle>
+            <br />
+            <IonItem>
+              <IonLabel position="floating">Enter Email</IonLabel>
+              <IonInput name="email" value={email} onIonChange={e => updateFormData(e)}></IonInput>
+            </IonItem>
+            <IonItem>
+              <IonLabel position="floating">Enter Password</IonLabel>
+              <IonInput name="password" value={password} type="password" onIonChange={e => updateFormData(e)}></IonInput>
+            </IonItem>
+            <br />
+            <IonButton expand="block" onClick={handleLogin}>Login</IonButton>
           </IonCardContent>
         </IonCard>
-
-        <IonList lines="none">
-          <IonListHeader>
-            <IonLabel>Resources</IonLabel>
-          </IonListHeader>
-          <IonItem href="https://ionicframework.com/docs/" target="_blank">
-            <IonIcon slot="start" color="medium" icon={book} />
-            <IonLabel>Ionic Documentation</IonLabel>
-          </IonItem>
-          <IonItem href="https://ionicframework.com/docs/building/scaffolding" target="_blank">
-            <IonIcon slot="start" color="medium" icon={build} />
-            <IonLabel>Scaffold Out Your App</IonLabel>
-          </IonItem>
-          <IonItem href="https://ionicframework.com/docs/layout/structure" target="_blank">
-            <IonIcon slot="start" color="medium" icon={grid} />
-            <IonLabel>Change Your App Layout</IonLabel>
-          </IonItem>
-          <IonItem href="https://ionicframework.com/docs/theming/basics" target="_blank">
-            <IonIcon slot="start" color="medium" icon={colorFill} />
-            <IonLabel>Theme Your App</IonLabel>
-          </IonItem>
-        </IonList>
+        <IonToast
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message="Login Unsuccessful!"
+          duration={2000}
+          color="danger"
+        />
       </IonContent>
     </IonPage>
   );
