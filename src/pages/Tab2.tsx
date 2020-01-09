@@ -3,6 +3,8 @@ import { IonContent, IonHeader, IonItem, IonLabel, IonList, IonPage, IonTitle, I
 import { useParams } from 'react-router-dom';
 import { fetchCards } from '../services/cards'
 import { fetchTransactions } from '../services/transactions'
+import { useDispatch } from 'react-redux'
+import { logout } from '../features/loginStatus/loginStatusSlice'
 
 interface Card {
   id: number
@@ -25,6 +27,8 @@ interface Transaction {
 }
 
 const Tab2: React.FC = () => {
+  const dispatch = useDispatch()
+
   let { user_id } = useParams()
   let limit = 4
   const [cards, setCards] = useState<Card[]>([])
@@ -96,7 +100,7 @@ const Tab2: React.FC = () => {
           {/* <IonButton slot='end' onClick={() => window.location.reload()}>
             Refresh
           </IonButton> */}
-          <IonButton slot='end' routerLink="/tab1">
+          <IonButton onClick={() => dispatch(logout())} slot='end' routerLink="/tab1">
             Logout
           </IonButton>
         </IonToolbar>

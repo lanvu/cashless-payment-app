@@ -13,8 +13,12 @@ import {
 import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
 import { fetchUserByEmail } from '../services/user'
+import { useDispatch } from 'react-redux'
+import { login } from '../features/loginStatus/loginStatusSlice'
 
 const Tab1: React.FC = () => {
+  const dispatch = useDispatch()
+
   let history = useHistory()
   const [showToast, setShowToast] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,6 +37,7 @@ const Tab1: React.FC = () => {
     fetchUserByEmail(email)
       .then(res => {
         if (!['No user found', 'Internal sever error'].includes(res.message) && password === '123') {
+          dispatch(login())
           history.push("/tab2/" + res.message.id)
         } else {
           setShowToast(true)
